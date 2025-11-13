@@ -1,0 +1,16 @@
+{
+  "model_name": "meta-llama/Llama-3.1-8B-Instruct",
+  "max_new_tokens": 128,
+  "precision": "torch.float16",
+  "num_prompts": 100,
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "timestamp": "2025-10-29T23:10:54.454674Z",
+  "pytorch_version": "2.5.1",
+  "gpu_name": "NVIDIA GH200 480GB",
+  "cuda_version": "12.4",
+  "num_gpus": 1
+}

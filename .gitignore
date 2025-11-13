@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Environment variables
+.env
+.env.*
+*.pem
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+*.pid
+
+# Results (keep directory structure, ignore large result files)
+results/*.csv
+results_*/*.csv
+*.png
+*.jpg
+*.jpeg
+
+# Archives
+*.zip
+*.tar.gz
+*.tar
+
+# Temporary files
+*.tmp
+*.bak
+*.backup

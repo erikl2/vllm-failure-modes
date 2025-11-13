@@ -1,0 +1,51 @@
+================================================================================
+BREAKING POINT ABLATION - DETAILED RESULTS
+================================================================================
+
+Naive Baseline (C=1)
+  P50 latency:    3534.5 ms
+  P99 latency:    3572.1 ms
+  Throughput:     36.2 tok/s
+  Status:         Baseline
+
+vLLM with Concurrency=2
+  P50 latency:    1794.4 ± 4.1 ms
+  P99 latency:    1830.9 ± 0.3 ms
+  Throughput:     142.7 ± 0.06 tok/s
+  Speedup:        3.9× vs baseline
+  Status:         ✓ Stable (100% success)
+
+vLLM with Concurrency=3 ⭐ OPTIMAL
+  P50 latency:    1815.8 ± 2.3 ms
+  P99 latency:    1876.4 ± 3.1 ms
+  Throughput:     207.7 ± 0.15 tok/s
+  Speedup:        5.7× vs baseline
+  Improvement:    45.6% better than C=2
+  Status:         ✓ Stable (100% success)
+
+vLLM with Concurrency=4 ⚠ BREAKING POINT
+  P50 latency:    1796.2 ms
+  P99 latency:    1807.3 ms
+  Throughput:     19.1 tok/s
+  Degradation:    90.8% worse than C=3
+  Status:         ✗ Breaking point (4 failures, extreme variance)
+
+================================================================================
+KEY FINDINGS
+================================================================================
+
+1. Optimal Configuration: C=3
+   - Best throughput: 207.7 tok/s
+   - Low latency: 1815.8ms median
+   - 100% success rate across all seeds
+
+2. Breaking Point: C=4
+   - 91% throughput degradation from C=3
+   - 4% request failure rate
+   - Extreme variance in response times
+
+3. Reproducibility: ✓ Excellent
+   - C=2: σ = 0.06 tok/s (0.04% variance)
+   - C=3: σ = 0.15 tok/s (0.07% variance)
+
+================================================================================

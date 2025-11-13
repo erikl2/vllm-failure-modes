@@ -1,0 +1,24 @@
+# Core ML frameworks
+torch==2.9.0
+transformers==4.47.1
+
+# vLLM for inference
+vllm
+
+# Async HTTP client
+aiohttp
+
+# Progress bars
+tqdm
+
+# Numerical computing
+numpy
+
+# Tokenization for workload generation
+tiktoken
+
+# HTTP requests
+requests
+
+# Hugging Face Hub
+huggingface_hub

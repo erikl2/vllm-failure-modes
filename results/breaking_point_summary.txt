@@ -1,0 +1,28 @@
+================================================================================
+BREAKING POINT ANALYSIS SUMMARY
+================================================================================
+
+Complete Concurrency Sweep Results
+----------------------------------------
+
+C=1: NOT RUN
+
+Concurrency = 2
+  P50 latency:    1794.4 ± 4.1 ms
+  P95 latency:    1827.4 ± 2.4 ms
+  P99 latency:    1830.9 ± 0.3 ms
+  Throughput:     142.7 ± 0.1 tok/s
+
+Concurrency = 3
+  P50 latency:    1815.8 ± 2.3 ms
+  P95 latency:    1847.0 ± 2.9 ms
+  P99 latency:    1876.4 ± 3.1 ms
+  Throughput:     207.7 ± 0.2 tok/s
+
+C=4: NOT RUN
+
+Breaking Point
+----------------------------------------
+No breaking point found in tested range
+
+================================================================================
