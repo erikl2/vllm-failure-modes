@@ -39,12 +39,13 @@ COMPARISON_FILE = "comparison.txt"
 class vLLMServer:
     """Manages vLLM server lifecycle."""
 
-    def __init__(self, model_name: str, host: str, port: int, dtype: str, gpu_memory_util: float):
+    def __init__(self, model_name: str, host: str, port: int, dtype: str, gpu_memory_util: float, seed: int = None):
         self.model_name = model_name
         self.host = host
         self.port = port
         self.dtype = dtype
         self.gpu_memory_util = gpu_memory_util
+        self.seed = seed
         self.process = None
         self.base_url = f"http://{host}:{port}"
 
@@ -55,6 +56,8 @@ class vLLMServer:
         print(f"  Host: {self.host}:{self.port}")
         print(f"  Dtype: {self.dtype}")
         print(f"  GPU Memory Utilization: {self.gpu_memory_util}")
+        if self.seed is not None:
+            print(f"  Seed: {self.seed}")
 
         cmd = [
             sys.executable, "-m", "vllm.entrypoints.openai.api_server",
@@ -64,6 +67,10 @@ class vLLMServer:
             "--dtype", self.dtype,
             "--gpu-memory-utilization", str(self.gpu_memory_util),
         ]
+
+        # Pass seed to vLLM server for reproducible sampling (when temperature > 0)
+        if self.seed is not None:
+            cmd.extend(["--seed", str(self.seed)])
 
         # Start server in background
         self.process = subprocess.Popen(
@@ -127,7 +134,16 @@ class vLLMServer:
 
 
 def set_seeds(seed: int):
-    """Set random seeds for reproducibility."""
+    """
+    Set random seeds for reproducibility.
+
+    This affects:
+    - Python's random module (used for prompt shuffling)
+    - NumPy's random (used for any numerical operations)
+
+    Note: For vLLM server-side reproducibility (sampling), the --seed flag
+    must be passed to the server AND temperature must be > 0.
+    """
     random.seed(seed)
     np.random.seed(seed)
 
@@ -211,7 +227,7 @@ async def run_benchmark_concurrent(
         prompts: List of prompt dictionaries
         concurrency: Number of concurrent requests
         max_tokens: Max tokens to generate
-        seed: Random seed
+        seed: Random seed (affects prompt ordering)
 
     Returns:
         Dictionary with metrics
@@ -219,6 +235,11 @@ async def run_benchmark_concurrent(
     set_seeds(seed)
 
     url = f"{base_url}/v1/completions"
+
+    # Shuffle prompts based on seed - this makes the seed meaningful!
+    # Different seeds = different prompt orderings = different KV cache growth patterns
+    shuffled_prompts = prompts.copy()
+    random.shuffle(shuffled_prompts)
 
     # Prepare results storage
     latencies = []
@@ -243,10 +264,10 @@ async def run_benchmark_concurrent(
     # Create session and send all requests
     timeout = aiohttp.ClientTimeout(total=600)  # 10 minute timeout per request
     async with aiohttp.ClientSession(timeout=timeout) as session:
-        # Create tasks for all prompts
+        # Create tasks for all prompts (using shuffled order)
         tasks = [
             bounded_request(session, prompt, i)
-            for i, prompt in enumerate(prompts)
+            for i, prompt in enumerate(shuffled_prompts)
         ]
 
         # Run with progress bar
@@ -472,7 +493,11 @@ async def main():
         print(f"  Metadata saved to {RESULTS_META}")
 
     # Start vLLM server
-    with vLLMServer(MODEL_NAME, VLLM_HOST, VLLM_PORT, DTYPE, GPU_MEMORY_UTIL) as server:
+    # Note: Server seed only affects sampling with temperature > 0.
+    # Client-side seed (via set_seeds) affects prompt shuffling order.
+    # We use the first seed for server initialization; prompt order varies per seed.
+    server_seed = seeds[0] if seeds else 42
+    with vLLMServer(MODEL_NAME, VLLM_HOST, VLLM_PORT, DTYPE, GPU_MEMORY_UTIL, seed=server_seed) as server:
 
         # Store all results
         all_results = {}

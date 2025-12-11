@@ -19,11 +19,13 @@ class VLLMRunner:
                  model: str,
                  gpu_memory_util: float = 0.9,
                  max_model_len: int = 4096,
-                 port: int = 8000):
+                 port: int = 8000,
+                 seed: int = None):
         self.model = model
         self.gpu_memory_util = gpu_memory_util
         self.max_model_len = max_model_len
         self.port = port
+        self.seed = seed
         self.process: Optional[subprocess.Popen] = None
         self.process_group_id: Optional[int] = None
 
@@ -43,6 +45,8 @@ class VLLMRunner:
         print(f"  Model: {self.model}")
         print(f"  GPU Memory: {self.gpu_memory_util}")
         print(f"  Port: {self.port}")
+        if self.seed is not None:
+            print(f"  Seed: {self.seed}")
 
         cmd = [
             sys.executable, "-m", "vllm.entrypoints.openai.api_server",
@@ -54,6 +58,10 @@ class VLLMRunner:
             "--disable-log-requests",  # Reduce noise
             "--trust-remote-code",
         ]
+
+        # Pass seed to vLLM server for reproducible sampling (when temperature > 0)
+        if self.seed is not None:
+            cmd.extend(["--seed", str(self.seed)])
 
         # CRITICAL: Start in new process group
         # This allows us to kill the entire process tree
@@ -197,6 +205,8 @@ def main():
     parser.add_argument('--gpu-memory-util', type=float, default=0.9)
     parser.add_argument('--max-model-len', type=int, default=4096)
     parser.add_argument('--port', type=int, default=8000)
+    parser.add_argument('--seed', type=int, default=None,
+                        help='Random seed for reproducible sampling (only affects temperature > 0)')
 
     args = parser.parse_args()
 
@@ -205,7 +215,8 @@ def main():
         model=args.model,
         gpu_memory_util=args.gpu_memory_util,
         max_model_len=args.max_model_len,
-        port=args.port
+        port=args.port,
+        seed=args.seed
     ) as runner:
         print("\nvLLM server running. Press Ctrl+C to stop.\n")
 

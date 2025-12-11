@@ -1,24 +1,17 @@
-# Core ML frameworks
-torch==2.9.0
-transformers==4.47.1
+# vLLM and inference
+vllm>=0.6.0
 
-# vLLM for inference
-vllm
+# Async HTTP client for benchmarking
+aiohttp>=3.9.0
 
-# Async HTTP client
-aiohttp
+# Data processing
+numpy>=1.24.0
+
+# Plotting
+matplotlib>=3.7.0
 
 # Progress bars
-tqdm
-
-# Numerical computing
-numpy
-
-# Tokenization for workload generation
-tiktoken
+tqdm>=4.65.0
 
 # HTTP requests
-requests
-
-# Hugging Face Hub
-huggingface_hub
+requests>=2.31.0

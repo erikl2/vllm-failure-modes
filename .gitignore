@@ -1,49 +1,35 @@
 # Python
 __pycache__/
 *.py[cod]
-*$py.class
 *.so
-.Python
+.venv/
 venv/
-env/
-ENV/
 *.egg-info/
-dist/
-build/
 
-# Environment variables
+# Environment
 .env
-.env.*
 *.pem
 
 # IDE
 .vscode/
 .idea/
 *.swp
-*.swo
 *~
 
 # OS
 .DS_Store
-Thumbs.db
 
 # Logs
 *.log
-*.pid
 
-# Results (keep directory structure, ignore large result files)
-results/*.csv
-results_*/*.csv
-*.png
-*.jpg
-*.jpeg
+# Individual experiment files (keep all_results.csv)
+results/*/gpu*.csv
+results/*/*_memory_*.csv
 
 # Archives
 *.zip
 *.tar.gz
-*.tar
 
-# Temporary files
+# Temporary
 *.tmp
 *.bak
-*.backup
